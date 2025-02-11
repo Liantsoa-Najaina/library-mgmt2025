@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="postgresql-42.7.5">
+  <library name="mockito-core-5.15.2">
     <CLASSES>
-      <root url="jar://$USER_HOME$/Documents/postgresql-42.7.4.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mockito-core-5.15.2.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
