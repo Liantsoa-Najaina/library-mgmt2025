@@ -46,17 +46,18 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
     @Override
     public List<Author> findByCriteria(List<Criteria> criteria) {
         List<Author> authors = new ArrayList<>();
-        String sql = "select a.id, a.name, a.birth_date from author a where 1=1";
+        StringBuilder sql = new StringBuilder("select a.id, a.name, a.birth_date from author a where 1=1");
         for (Criteria c : criteria) {
             if ("name".equals(c.getColumn())) {
-                sql += " and a." + c.getColumn() + " ilike '%" + c.getValue().toString() + "%'";
+                sql.append(" and a.").append(c.getColumn()).append(" ilike '%").append(c.getValue().toString()).append("%'");
             } else if ("birth_date".equals(c.getColumn())) {
-                sql += " or a." + c.getColumn() + " = '" + c.getValue().toString() + "'";
+                sql.append(" or a.").append(c.getColumn()).append(" = '").append(c.getValue().toString()).append("'");
             }
         }
+        sql.append(" order by a.id asc");
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             ResultSet resultSet = statement.executeQuery(sql.toString())) {
             return mapAuthorFromResultSet(resultSet);
         } catch (SQLException e) {
             throw new RuntimeException(e);
