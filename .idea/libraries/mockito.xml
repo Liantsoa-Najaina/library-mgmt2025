@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="mockito">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Documents/Mockito/mockito-core-5.15.2.jar!/" />
+      <root url="jar://$USER_HOME$/Documents/Mockito/byte-buddy-1.17.0.jar!/" />
+      <root url="jar://$USER_HOME$/Documents/Mockito/objenesis-3.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
