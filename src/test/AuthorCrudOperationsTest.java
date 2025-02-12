@@ -48,18 +48,16 @@ class AuthorCrudOperationsTest {
 
     @Test
     void create_then_update_author_ok() throws SQLException {
-        var authors = newAuthor(randomUUID().toString(), "authorX", LocalDate.of(1942, 1, 1));
+        var authors = newAuthor("author6_id", "JK Rowling", LocalDate.of(1972, 1, 1));
 
         var actual = subject.saveAll(List.of(authors));
-        //TODO: update created authors with saveAll when saveAll handle update
 
-        var existingAuthors = subject.getAll(1, 3);
+        var existingAuthors = subject.getAll(1, 10);
         assertEquals(List.of(authors), actual);
         assertTrue(existingAuthors.containsAll(actual));
     }
 
-    // TODO : make the changes inside the CrudOperations and its implementation to handle this
-    // Once test passed, set UnitTest corresponding
+
     @Test
     void read_authors_filter_by_name_or_birthday_between_intervals() {
         ArrayList<Criteria> criteria = new ArrayList<>();
@@ -82,13 +80,22 @@ class AuthorCrudOperationsTest {
         return newAuthor("author2_id", "Rado", LocalDate.of(1990, 1, 1));
     }
 
-    // TODO : make the changes inside the CrudOperations and its implementation to handle this
-    // Once test passed, set UnitTest corresponding
+
     @Test
     void read_authors_order_by_name_or_birthday_or_both() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            throw new UnsupportedOperationException("Not implemented yet");
-        });
+        Author author1 = newAuthor("author3_id", "Clarisse R", LocalDate.of(1920, 1, 1));
+        Author author2 = authorJJR();
+        Author author3 = newAuthor("author6_id", "JK Rowling", LocalDate.of(1972, 1, 1));
+        Author author4 = newAuthor("author4_id", "Machiavelli", LocalDate.of(1700, 2, 2));
+        Author author5 = newAuthor("author5_id", "Plato", LocalDate.of(300, 3, 3));
+        Author author6 = authorRado();
+
+
+
+        List<Author> actual = subject.findAllSortedBy("name", "ASC", 1, 10);
+
+        List<Author> expected = List.of(author1, author2, author3, author4, author5, author6);
+        assertEquals(expected, actual);
     }
 
 
@@ -110,7 +117,7 @@ class AuthorCrudOperationsTest {
 
     @Test
     void delete_author_by_id_ok() {
-        Author author = newAuthor(randomUUID().toString(), "Test Author", LocalDate.of(1985, 5, 6));
+        Author author = newAuthor("author_7", "JRR Tolkien", LocalDate.of(1985, 5, 6));
         subject.saveAll(List.of(author));
 
         boolean deleteById = subject.deleteById(author.getId());

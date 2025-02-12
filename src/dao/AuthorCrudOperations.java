@@ -6,6 +6,7 @@ import entity.Author;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -65,6 +66,40 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
     }
 
     @Override
+    public List<Author> findAllSortedBy(String sortField, String sortDirection, int page, int size) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM author");
+
+        List<String> validFields = List.of("name", "birth_date");
+        if (validFields.contains(sortField)) {
+            sql.append(" ORDER BY ").append(sortField);
+        } else {
+            sql.append("ORDER BY name");
+        }
+
+        if (sortDirection.equalsIgnoreCase("ASC") || sortDirection.equalsIgnoreCase("DESC")) {
+            sql.append(" ").append(sortDirection);
+        } else {
+            sql.append("ASC");
+        }
+
+        sql.append(" LIMIT ? OFFSET ?");
+
+        List<Author> authors = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
+            int offset = (page - 1) * size;
+            preparedStatement.setInt(1, size);
+            preparedStatement.setInt(2, offset);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            return mapAuthorFromResultSet(resultSet);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public Author findById(String id) {
         String sql = "select a.id, a.name, a.birth_date, a.sex from author a where id = ?";
         try (Connection connection = dataSource.getConnection();
@@ -110,6 +145,7 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
         List<Author> newAuthors = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(true);
+
 
             for (Author author : entities) {
                 Author existing = findById(connection,author.getId());

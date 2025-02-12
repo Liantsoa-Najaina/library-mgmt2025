@@ -8,6 +8,8 @@ public interface CrudOperations<E> {
 
     List<E> findByCriteria(List<Criteria> criteria);
 
+    List<E> findAllSortedBy(String sortField, String sortDirection, int page, int size);
+
     E findById(String id);
 
     // Both create (if does not exist) or update (if exist) entities
