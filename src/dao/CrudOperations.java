@@ -1,5 +1,7 @@
 package dao;
 
+import entity.Author;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -9,6 +11,9 @@ public interface CrudOperations<E> {
     List<E> findByCriteria(List<Criteria> criteria);
 
     List<E> findAllSortedBy(String sortField, String sortDirection, int page, int size);
+
+    List<Author> findByCriteriaSortedAndPaginated(
+            List<Criteria> criteria, String sortField, String sortDirection, int page, int size);
 
     E findById(String id);
 

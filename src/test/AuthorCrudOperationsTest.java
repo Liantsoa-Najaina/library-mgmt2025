@@ -98,6 +98,20 @@ class AuthorCrudOperationsTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    void read_filtered_ordered_and_paginated_ok() {
+        Author author1 = newAuthor("author5_id", "Plato", LocalDate.of(300, 3, 3));
+        Author author2 = newAuthor("author4_id", "Machiavelli", LocalDate.of(1700, 2, 2));
+        Author author3 = newAuthor("author3_id", "Clarisse R", LocalDate.of(1920, 1, 1));
+        Author author4 = newAuthor("author2_id", "Rado", LocalDate.of(1990, 1, 1));
+
+        List<Criteria> criteria = List.of(new Criteria("name", "%a%"));
+
+        List<Author> actual = subject.findByCriteriaSortedAndPaginated(criteria, "birth_date", "asc", 1, 5);
+        List<Author> expected = List.of(author1, author2, author3, author4);
+        assertEquals(expected, actual);
+    }
+
 
     private Author authorJJR() {
         Author expectedAuthor = new Author();

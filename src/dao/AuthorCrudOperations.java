@@ -4,9 +4,7 @@ import db.DataSource;
 import entity.Author;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -98,6 +96,55 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<Author> findByCriteriaSortedAndPaginated(
+            List<Criteria> criteria, String sortField, String sortDirection, int page, int size) {
+
+        StringBuilder sql = new StringBuilder("SELECT a.id, a.name, a.birth_date FROM author a WHERE 1=1");
+
+        for (Criteria c : criteria) {
+            if ("name".equals(c.getColumn())) {
+                sql.append(" AND a.").append(c.getColumn())
+                        .append(" ILIKE '%").append(c.getValue().toString()).append("%'");
+            } else if ("birth_date".equals(c.getColumn())) {
+                sql.append(" AND a.").append(c.getColumn())
+                        .append(" = '").append(c.getValue().toString()).append("'");
+            }
+        }
+
+        // Adding sorting logic
+        List<String> validFields = List.of("name", "birth_date");
+        if (validFields.contains(sortField)) {
+            sql.append(" ORDER BY ").append(sortField);
+        } else {
+            sql.append(" ORDER BY name");
+        }
+
+        if (sortDirection.equalsIgnoreCase("ASC") || sortDirection.equalsIgnoreCase("DESC")) {
+            sql.append(" ").append(sortDirection);
+        } else {
+            sql.append(" ASC");
+        }
+
+        sql.append(" LIMIT ? OFFSET ?");
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())) {
+
+            int offset = (page - 1) * size;
+            preparedStatement.setInt(1, size);
+            preparedStatement.setInt(2, offset);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return mapAuthorFromResultSet(resultSet);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
     @Override
     public Author findById(String id) {
