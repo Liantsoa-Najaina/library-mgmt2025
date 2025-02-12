@@ -14,7 +14,6 @@ public class DataSource {
 
     public DataSource() {
         jdbcUrl = "jdbc:postgresql://" + host + ":" + defaultPort + "/" + database;
-        System.out.println("Database URL: " + jdbcUrl);
     }
 
     public Connection getConnection() {

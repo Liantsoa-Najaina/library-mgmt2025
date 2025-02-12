@@ -84,12 +84,32 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
         }
     }
 
+    private Author findById(Connection connection, String id) throws SQLException {
+        String sql = "select a.id, a.name, a.birth_date from author a where id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    Author author = new Author();
+                    author.setId(resultSet.getString("id"));
+                    author.setName(resultSet.getString("name"));
+                    author.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+                    return author;
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
     @Override
     public List<Author> saveAll(List<Author> entities)  {
         List<Author> newAuthors = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(true);
+
             for (Author author : entities) {
-                Author existing = findById(author.getId());
+                Author existing = findById(connection,author.getId());
                 if (existing == null) {
                     try (PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO author (id, name, birth_date) VALUES (?, ?, ?)")) {
                         insertStatement.setString(1, author.getId());
@@ -107,7 +127,7 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
                         updateStatement.executeUpdate();
                     }
                 }
-                newAuthors.add(findById(author.getId()));
+                newAuthors.add(findById(connection,author.getId()));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
