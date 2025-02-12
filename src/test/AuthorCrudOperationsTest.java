@@ -3,6 +3,7 @@ package test;
 import dao.AuthorCrudOperations;
 import dao.Criteria;
 import entity.Author;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -15,6 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthorCrudOperationsTest {
     // Always rename the class to test to 'subject'
     AuthorCrudOperations subject = new AuthorCrudOperations();
+
+    @BeforeEach
+    void setUp() {
+        subject = new AuthorCrudOperations();
+    }
+
 
     @Test
     void read_all_authors_ok() {
@@ -39,7 +46,7 @@ class AuthorCrudOperationsTest {
 
     @Test
     void create_then_update_author_ok() {
-        var authors = newAuthor(randomUUID().toString(), "Random famous author", LocalDate.of(2000, 1, 1));
+        var authors = newAuthor(randomUUID().toString(), "authorX", LocalDate.of(1942, 1, 1));
 
         var actual = subject.saveAll(List.of(authors));
         //TODO: update created authors with saveAll when saveAll handle update

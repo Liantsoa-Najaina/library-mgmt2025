@@ -105,4 +105,9 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
         }
         return newAuthors;
     }
+
+    @Override
+    public void deleteById(String id) {
+
+    }
 }
