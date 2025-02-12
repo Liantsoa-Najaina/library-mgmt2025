@@ -28,9 +28,10 @@ class AuthorCrudOperationsTest {
     void read_all_authors_ok() {
         // Test for data and potential mock
         Author expectedAuthor = authorJJR();
+        subject.saveAll(List.of(expectedAuthor));
 
         // Subject and the function to test
-        List<Author> actual = subject.getAll(1, 3);
+        List<Author> actual = subject.getAll(1, 10);
 
         // Assertions : verification to be made automatically
         assertTrue(actual.contains(expectedAuthor));
@@ -105,6 +106,18 @@ class AuthorCrudOperationsTest {
         author.setName(name);
         author.setBirthDate(birthDate);
         return author;
+    }
+
+    @Test
+    void delete_author_by_id_ok() {
+        Author author = newAuthor(randomUUID().toString(), "Test Author", LocalDate.of(1985, 5, 6));
+        subject.saveAll(List.of(author));
+
+        boolean deleteById = subject.deleteById(author.getId());
+        assertTrue(deleteById);
+
+        Author fetched = subject.findById(author.getId());
+        assertNull(fetched);
     }
 }
 

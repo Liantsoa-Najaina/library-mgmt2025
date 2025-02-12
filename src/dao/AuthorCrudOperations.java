@@ -72,12 +72,15 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
             statement.setString(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 Author author = new Author();
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     author.setId(resultSet.getString("id"));
                     author.setName(resultSet.getString("name"));
                     author.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+
+                    return author;
+                } else {
+                    return null;
                 }
-                return author;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
