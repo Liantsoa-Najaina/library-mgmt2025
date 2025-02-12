@@ -6,6 +6,7 @@ import entity.Author;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ class AuthorCrudOperationsTest {
     }
 
     @Test
-    void create_then_update_author_ok() {
+    void create_then_update_author_ok() throws SQLException {
         var authors = newAuthor(randomUUID().toString(), "authorX", LocalDate.of(1942, 1, 1));
 
         var actual = subject.saveAll(List.of(authors));

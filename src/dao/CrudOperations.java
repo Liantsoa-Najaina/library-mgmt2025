@@ -1,5 +1,6 @@
 package dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface CrudOperations<E> {
@@ -10,7 +11,9 @@ public interface CrudOperations<E> {
     E findById(String id);
 
     // Both create (if does not exist) or update (if exist) entities
-    List<E> saveAll(List<E> entities);
+    List<E> saveAll(List<E> entities) throws SQLException;
 
-    void deleteById(String id);
+    E update(String id, E updatedEntity);
+
+    boolean deleteById(String id);
 }

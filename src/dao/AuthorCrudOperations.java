@@ -4,6 +4,7 @@ import db.DataSource;
 import entity.Author;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -23,8 +24,7 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
             preparedStatement.setInt(1, size);
             preparedStatement.setInt(2, size * (page - 1));
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                List<Author> authors = mapAuthorFromResultSet(resultSet);
-                return authors;
+                return mapAuthorFromResultSet(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -85,21 +85,30 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
     }
 
     @Override
-    public List<Author> saveAll(List<Author> entities) {
+    public List<Author> saveAll(List<Author> entities)  {
         List<Author> newAuthors = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
-            entities.forEach(entityToSave -> {
-                try (PreparedStatement statement = connection.prepareStatement("insert into author (id, name, birth_date) values (?, ?, ?)")) {
-                    statement.setString(1, entityToSave.getId());
-                    statement.setString(2, entityToSave.getName());
-                    statement.setDate(3, Date.valueOf(entityToSave.getBirthDate()));
+            for (Author author : entities) {
+                Author existing = findById(author.getId());
+                if (existing == null) {
+                    try (PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO author (id, name, birth_date) VALUES (?, ?, ?)")) {
+                        insertStatement.setString(1, author.getId());
+                        insertStatement.setString(2, author.getName());
+                        insertStatement.setDate(3, Date.valueOf(author.getBirthDate()));
 
-                    statement.executeUpdate();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                        insertStatement.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement updateStatement = connection.prepareStatement("UPDATE author SET name = ?, birth_date = ? WHERE id = ?")) {
+                        updateStatement.setString(1, author.getName());
+                        updateStatement.setDate(2, Date.valueOf(author.getBirthDate()));
+                        updateStatement.setString(3, author.getId());
+
+                        updateStatement.executeUpdate();
+                    }
                 }
-                newAuthors.add(findById(entityToSave.getId()));
-            });
+                newAuthors.add(findById(author.getId()));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -107,7 +116,37 @@ public class AuthorCrudOperations implements CrudOperations<Author> {
     }
 
     @Override
-    public void deleteById(String id) {
+    public Author update(String id, Author updatedEntity) {
+        String sql = "UPDATE author SET name = ?, birth_date = ? WHERE id = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, updatedEntity.getName());
+            statement.setDate(2, Date.valueOf(updatedEntity.getBirthDate()));
+            statement.setString(3, id);
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows > 0) {
+                return updatedEntity;
+            } else {
+                logger.warning("No author found with ID: " + id);
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public boolean deleteById(String id) {
+        String sql = "delete from author where id = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, id);
+            int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }
